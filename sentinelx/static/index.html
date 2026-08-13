@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SentinelX — NAIST Anomaly Detection Research Simulator</title>
+    <!-- Google Fonts for premium typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- ChartJS for dynamic trends via CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Main Wrapper -->
+    <div class="app-container">
+        <!-- Top Navigation Header -->
+        <header class="main-header">
+            <div class="header-logo">
+                <span class="logo-icon"><i class="fa-solid fa-shield-halved"></i></span>
+                <div class="logo-text">
+                    <h1>SentinelX</h1>
+                    <span class="sub-logo">NAIST Research Sandbox</span>
+                </div>
+            </div>
+            <div class="nav-tabs">
+                <button class="tab-btn active" data-tab="dashboard">
+                    <i class="fa-solid fa-chart-line"></i> Dashboard
+                </button>
+                <button class="tab-btn" data-tab="research">
+                    <i class="fa-solid fa-graduation-cap"></i> Research Mode
+                </button>
+            </div>
+            <div class="header-controls">
+                <div class="scenario-selector">
+                    <label for="scenarioSelect">Scenario:</label>
+                    <select id="scenarioSelect">
+                        <option value="normal">Normal Traffic</option>
+                        <option value="dos">DoS (High Volume)</option>
+                        <option value="probe">Port Scan (Probe)</option>
+                        <option value="compromise">Internal Privilege Abuse</option>
+                        <option value="iot_anomaly">IoT Rogue Traversal</option>
+                        <option value="stealthy">Stealthy Data Exfiltration</option>
+                    </select>
+                </div>
+                <div class="engine-selector">
+                    <label for="engineSelect">Detection Engine:</label>
+                    <select id="engineSelect">
+                        <option value="traffic-only">Traffic-Only</option>
+                        <option value="context-aware">Context-Aware</option>
+                        <option value="risk-informed" selected>Risk-Informed</option>
+                    </select>
+                </div>
+                <button id="playPauseBtn" class="control-btn" title="Pause/Play Simulation">
+                    <i class="fa-solid fa-pause"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            
+            <!-- DASHBOARD TAB CONTENT -->
+            <div id="dashboardTab" class="tab-content active">
+                
+                <!-- KPI Status Bar -->
+                <section class="kpi-grid">
+                    <div class="kpi-card">
+                        <div class="kpi-info">
+                            <span class="kpi-label">Active Flows (Live)</span>
+                            <span class="kpi-val" id="kpiActiveFlows">0</span>
+                        </div>
+                        <div class="kpi-icon-wrapper bg-blue-glow">
+                            <i class="fa-solid fa-network-wired"></i>
+                        </div>
+                    </div>
+                    
+                    <div class="kpi-card">
+                        <div class="kpi-info">
+                            <span class="kpi-label">Anomalies Caught</span>
+                            <span class="kpi-val text-orange" id="kpiAnomalies">0</span>
+                        </div>
+                        <div class="kpi-icon-wrapper bg-orange-glow">
+                            <i class="fa-solid fa-circle-exclamation"></i>
+                        </div>
+                    </div>
+
+                    <div class="kpi-card">
+                        <div class="kpi-info">
+                            <span class="kpi-label">High-Risk Incidents</span>
+                            <span class="kpi-val text-red" id="kpiHighRisk">0</span>
+                        </div>
+                        <div class="kpi-icon-wrapper bg-red-glow">
+                            <i class="fa-solid fa-triangle-exclamation"></i>
+                        </div>
+                    </div>
+
+                    <div class="kpi-card">
+                        <div class="kpi-info">
+                            <span class="kpi-label">False Positive Rate</span>
+                            <span class="kpi-val text-cyan" id="kpiFPR">0.0%</span>
+                        </div>
+                        <div class="kpi-icon-wrapper bg-cyan-glow">
+                            <i class="fa-solid fa-percent"></i>
+                        </div>
+                    </div>
+
+                    <div class="kpi-card">
+                        <div class="kpi-info">
+                            <span class="kpi-label">Alert Workload Reduction</span>
+                            <span class="kpi-val text-purple" id="kpiReduction">0.0%</span>
+                        </div>
+                        <div class="kpi-icon-wrapper bg-purple-glow">
+                            <i class="fa-solid fa-filter"></i>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Visualization Workspace -->
+                <div class="workspace-grid">
+                    
+                    <!-- Left: Interactive Topology -->
+                    <div class="card topology-card">
+                        <div class="card-header">
+                            <h2><i class="fa-solid fa-diagram-project text-blue"></i> Live Topology View</h2>
+                            <span class="badge badge-outline">Identity Context-Aware</span>
+                        </div>
+                        <div class="card-body topology-container">
+                            <svg id="topologySvg" viewBox="0 0 800 480" width="100%" height="100%">
+                                <!-- Connection Links -->
+                                <g id="linksGroup"></g>
+                                
+                                <!-- Active Packet Particles -->
+                                <g id="packetsGroup"></g>
+                                
+                                <!-- Network Nodes -->
+                                <g id="nodesGroup"></g>
+                            </svg>
+                        </div>
+                        <div class="card-footer topology-legend">
+                            <span class="legend-item"><span class="dot bg-blue"></span> Management / Gateway</span>
+                            <span class="legend-item"><span class="dot bg-cyan"></span> Corporate Workstations</span>
+                            <span class="legend-item"><span class="dot bg-purple"></span> Corporate Servers</span>
+                            <span class="legend-item"><span class="dot bg-yellow"></span> IoT Devices</span>
+                            <span class="legend-item"><span class="dot bg-green"></span> Trusted Link</span>
+                        </div>
+                    </div>
+
+                    <!-- Right: Live Flow Stream -->
+                    <div class="card flow-card">
+                        <div class="card-header">
+                            <h2><i class="fa-solid fa-list-check text-cyan"></i> Live Flow Log</h2>
+                            <div class="card-actions">
+                                <span class="pulse-indicator"></span>
+                                <span class="status-text text-muted">SIMULATED DATA FOR RESEARCH DEMO</span>
+                            </div>
+                        </div>
+                        <div class="card-body flow-stream-container">
+                            <div class="flow-stream-header">
+                                <div class="col-time">Time</div>
+                                <div class="col-src">Source</div>
+                                <div class="col-direction"></div>
+                                <div class="col-dest">Destination</div>
+                                <div class="col-proto">Proto</div>
+                                <div class="col-size">Size</div>
+                                <div class="col-result">Engine Verdict</div>
+                            </div>
+                            <div id="flowStreamList" class="flow-stream-list font-mono">
+                                <!-- Flows injected dynamically -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Lower Charts Row -->
+                <div class="charts-row">
+                    <!-- Left Chart: Anomaly Trends -->
+                    <div class="card chart-card">
+                        <div class="card-header">
+                            <h2><i class="fa-solid fa-chart-area text-blue"></i> Anomaly Insights (Live Activity)</h2>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="anomalyTrendsChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Right Chart: Attacks Caught (Bar Chart) -->
+                    <div class="card chart-card">
+                        <div class="card-header">
+                            <h2><i class="fa-solid fa-bug text-red"></i> Recall Performance by Attack Type</h2>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="attacksBarChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- RESEARCH MODE TAB CONTENT -->
+            <div id="researchTab" class="tab-content">
+                <section class="research-hero">
+                    <div class="research-header-desc">
+                        <h2>Evaluating Context Integration for Network Anomaly Detection</h2>
+                        <p>This sandbox tests the core hypothesis of your NAIST research proposal: adding device identity, VLAN segments, and historical familiarity to standard traffic metrics improves anomaly interpretation and reduces administrator alert fatigue.</p>
+                    </div>
+                </section>
+
+                <div class="research-phases-grid">
+                    <div class="phase-info-card">
+                        <div class="phase-number bg-blue-glow">Phase 1</div>
+                        <h3>Traffic-Only Baseline</h3>
+                        <p>Evaluates flows strictly using packet size, flow duration, byte counts, and connection rate. Utilizes an Isolation Forest unsupervised model.</p>
+                        <div class="phase-strength strength-red">
+                            <i class="fa-solid fa-triangle-exclamation"></i> Misses stealthy, low-volume attacks (R2L, device compromise). High false positives for normal data bursts.
+                        </div>
+                    </div>
+
+                    <div class="phase-info-card">
+                        <div class="phase-number bg-cyan-glow">Phase 2</div>
+                        <h3>Context-Aware Detection</h3>
+                        <p>Integrates Cisco ISE inspired details: device roles, network segments, destination familiarity, and historical deviations.</p>
+                        <div class="phase-strength strength-orange">
+                            <i class="fa-solid fa-check text-green"></i> Exposes stealthy Remote-to-Local attacks by identifying access-policy violations. Dampens baseline false alarms.
+                        </div>
+                    </div>
+
+                    <div class="phase-info-card">
+                        <div class="phase-number bg-purple-glow">Phase 3</div>
+                        <h3>Risk-Informed Operations</h3>
+                        <p>Applies an interpretable scoring formula combining traffic anomalies, context deviations, destination reputation, and asset criticality values.</p>
+                        <div class="phase-strength strength-green">
+                            <i class="fa-solid fa-circle-check text-green"></i> Prioritizes alerts into actionable tiers (Low, Medium, High, Critical). Drastically reduces raw alert volume.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="research-comparison-workspace">
+                    <div class="card">
+                        <div class="card-header">
+                            <h2><i class="fa-solid fa-scale-balanced text-purple"></i> Detection Performance Comparison Matrix</h2>
+                        </div>
+                        <div class="card-body">
+                            <table class="metrics-table font-mono">
+                                <thead>
+                                    <tr>
+                                        <th>Evaluation Model</th>
+                                        <th>Precision (%)</th>
+                                        <th>Recall (%)</th>
+                                        <th>F1-Score (%)</th>
+                                        <th>False Positive Rate (%)</th>
+                                        <th>Alerts Dispatched</th>
+                                        <th>Alert Workload reduction</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="metricsTableBody">
+                                    <!-- Dynamic rows -->
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="card-footer">
+                            <i class="fa-solid fa-info-circle text-muted"></i> Simulated evaluation stats accumulated in real-time during this sandbox session. Compare performance ratios to view context value. Metrics are cumulative for the session — switch scenarios and let each run for a while to see the engines diverge; a single attack type run alone (e.g. only DoS) can make all three look identical, since loud volume attacks are the one case where they agree.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Slide-out Flow Inspector Drawer -->
+        <aside id="flowInspector" class="inspector-drawer">
+            <div class="drawer-header">
+                <h3><i class="fa-solid fa-circle-info text-cyan"></i> Flow Inspector</h3>
+                <button id="closeInspectorBtn" class="close-btn">&times;</button>
+            </div>
+            <div class="drawer-body">
+                
+                <!-- Flow Identity -->
+                <div class="inspector-section">
+                    <h4 class="section-title">Network Flow Parameters</h4>
+                    <div class="inspector-grid">
+                        <div class="ig-item"><span class="ig-label">Flow ID:</span> <span class="ig-val font-mono" id="insFlowId">-</span></div>
+                        <div class="ig-item"><span class="ig-label">Time:</span> <span class="ig-val font-mono" id="insTime">-</span></div>
+                        <div class="ig-item"><span class="ig-label">Protocol:</span> <span class="ig-val font-mono" id="insProto">-</span></div>
+                        <div class="ig-item"><span class="ig-label">Dest Port:</span> <span class="ig-val font-mono" id="insPort">-</span></div>
+                        <div class="ig-item"><span class="ig-label">Packets:</span> <span class="ig-val font-mono" id="insPackets">-</span></div>
+                        <div class="ig-item"><span class="ig-label">Byte Count:</span> <span class="ig-val font-mono" id="insBytes">-</span></div>
+                        <div class="ig-item"><span class="ig-label">Duration:</span> <span class="ig-val font-mono" id="insDuration">-</span></div>
+                    </div>
+                </div>
+
+                <!-- Cisco ISE Context info -->
+                <div class="inspector-section">
+                    <h4 class="section-title">Identity & Access Context</h4>
+                    <div class="inspector-grid">
+                        <div class="ig-item full-width"><span class="ig-label">Source Host:</span> <span class="ig-val font-mono" id="insSrcName">-</span></div>
+                        <div class="ig-item"><span class="ig-label">Source IP:</span> <span class="ig-val font-mono" id="insSrcIp">-</span></div>
+                        <div class="ig-item"><span class="ig-label">Source VLAN:</span> <span class="ig-val font-mono" id="insSrcVlan">-</span></div>
+                        <div class="ig-item"><span class="ig-label">Device Role:</span> <span class="ig-val font-mono" id="insSrcRole">-</span></div>
+                        
+                        <div class="ig-item full-width"><span class="ig-label">Dest Host:</span> <span class="ig-val font-mono" id="insDestName">-</span></div>
+                        <div class="ig-item"><span class="ig-label">Dest IP:</span> <span class="ig-val font-mono" id="insDestIp">-</span></div>
+                        <div class="ig-item"><span class="ig-label">Dest VLAN:</span> <span class="ig-val font-mono" id="insDestVlan">-</span></div>
+                        <div class="ig-item"><span class="ig-label">Dest Role:</span> <span class="ig-val font-mono" id="insDestRole">-</span></div>
+                    </div>
+                </div>
+
+                <!-- Context Violations -->
+                <div class="inspector-section">
+                    <h4 class="section-title">Context Anomalies</h4>
+                    <div id="insViolationsContainer" class="violations-list font-mono">
+                        <!-- Violations injected dynamically -->
+                    </div>
+                </div>
+
+                <!-- 3-Phase Verdict Comparison -->
+                <div class="inspector-section">
+                    <h4 class="section-title">Engine Classification Verdicts</h4>
+                    <div class="verdict-comparison-list font-mono">
+                        <div class="verdict-item">
+                            <span class="vi-label">Phase 1: Traffic-Only</span>
+                            <span class="badge" id="badgePhase1">-</span>
+                        </div>
+                        <div class="verdict-item">
+                            <span class="vi-label">Phase 2: Context-Aware</span>
+                            <span class="badge" id="badgePhase2">-</span>
+                        </div>
+                        <div class="verdict-item">
+                            <span class="vi-label">Phase 3: Risk-Informed</span>
+                            <span class="badge" id="badgePhase3">-</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Risk breakdown (interpretable scoring formula) -->
+                <div class="inspector-section" id="insRiskSection">
+                    <h4 class="section-title">Risk Scoring details</h4>
+                    <div class="risk-score-gauge">
+                        <div class="gauge-display">
+                            <span class="gauge-value" id="insRiskScore">0</span>
+                            <span class="gauge-label" id="insPriority">LOW</span>
+                        </div>
+                    </div>
+                    <div class="action-recommendation">
+                        <span class="ar-title">Operational Recommendation:</span>
+                        <p class="ar-desc" id="insAction">-</p>
+                    </div>
+                </div>
+
+                <!-- Anomaly Interpretation Explanation -->
+                <div class="inspector-section">
+                    <h4 class="section-title">Research Interpretation Summary</h4>
+                    <div class="explanation-box" id="insExplanation">
+                        -
+                    </div>
+                </div>
+
+            </div>
+        </aside>
+
+        <!-- Device Info Overlay Panel -->
+        <div id="deviceOverlay" class="device-modal">
+            <div class="modal-content card">
+                <div class="modal-header">
+                    <h3><i class="fa-solid fa-desktop text-blue"></i> Device Context Profile</h3>
+                    <button id="closeModalBtn" class="close-btn">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="inspector-grid font-mono">
+                        <div class="ig-item"><span class="ig-label">Device ID:</span> <span class="ig-val" id="mdDeviceId">-</span></div>
+                        <div class="ig-item"><span class="ig-label">Name:</span> <span class="ig-val" id="mdName">-</span></div>
+                        <div class="ig-item"><span class="ig-label">IP Address:</span> <span class="ig-val" id="mdIp">-</span></div>
+                        <div class="ig-item"><span class="ig-label">Network VLAN:</span> <span class="ig-val" id="mdVlan">-</span></div>
+                        <div class="ig-item"><span class="ig-label">Identified Role:</span> <span class="ig-val" id="mdRole">-</span></div>
+                        <div class="ig-item"><span class="ig-label">Cisco ISE Trust:</span> <span class="ig-val" id="mdTrust">-</span></div>
+                        <div class="ig-item"><span class="ig-label">Asset Criticality:</span> <span class="ig-val" id="mdCriticality">-</span></div>
+                        <div class="ig-item"><span class="ig-label">Risk Status:</span> <span class="ig-val" id="mdRisk">-</span></div>
+                    </div>
+                    <div class="modal-badge-info">
+                        <i class="fa-solid fa-lock-open text-muted"></i>
+                        <span class="text-muted">Identity metrics served dynamically by Cisco ISE endpoint simulator logic.</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Frontend scripts -->
+    <script src="app.js"></script>
+</body>
+</html>

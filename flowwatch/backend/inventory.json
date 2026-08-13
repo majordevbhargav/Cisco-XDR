@@ -1,0 +1,31 @@
+{
+  "subnets": {
+    "10.0.10.0/24": {
+      "vlan": "Corporate",
+      "criticality": 2
+    },
+    "10.0.20.0/24": {
+      "vlan": "Server",
+      "criticality": 4
+    },
+    "10.0.30.0/24": {
+      "vlan": "IoT",
+      "criticality": 1
+    },
+    "10.0.90.0/24": {
+      "vlan": "Management",
+      "criticality": 5
+    }
+  },
+  "devices": {},
+  "policies": {
+    "database": [
+      "app-server",
+      "admin-workstation"
+    ],
+    "domain-controller": [
+      "admin-workstation",
+      "server"
+    ]
+  }
+}

@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FlowWatch - Live Network Anomaly Detection</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header class="topbar">
+  <div class="brand">
+    <span class="brand-mark"></span>
+    <h1>FlowWatch</h1>
+    <span class="tag">real NetFlow v5 · live detection</span>
+  </div>
+  <div class="topbar-right">
+    <div class="stat-chip" id="collectorStatus">
+      <span class="dot" id="collectorDot"></span>
+      <span id="collectorLabel">connecting…</span>
+    </div>
+  </div>
+</header>
+
+<main>
+  <section class="summary-row" id="summaryRow"></section>
+
+  <section class="panels">
+    <div class="panel flows-panel">
+      <div class="panel-header">
+        <h2>Live Flow Log</h2>
+        <select id="tierFilter">
+          <option value="">All tiers</option>
+          <option value="Critical">Critical</option>
+          <option value="High">High</option>
+          <option value="Medium">Medium</option>
+          <option value="Low">Low</option>
+        </select>
+      </div>
+      <div class="table-wrap">
+        <table id="flowsTable">
+          <thead>
+            <tr>
+              <th>Time</th><th>Src</th><th>Dst</th><th>Port</th><th>Proto</th>
+              <th>Bytes</th><th>Risk</th><th>Tier</th>
+            </tr>
+          </thead>
+          <tbody id="flowsBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="panel detail-panel" id="detailPanel">
+      <div class="panel-header"><h2>Flow Inspector</h2></div>
+      <div id="detailContent" class="empty-state">Click a flow to inspect it</div>
+    </div>
+  </section>
+
+  <section class="panels">
+    <div class="panel">
+      <div class="panel-header"><h2>Engine Comparison (cumulative)</h2></div>
+      <div id="engineStats" class="engine-stats"></div>
+    </div>
+    <div class="panel">
+      <div class="panel-header"><h2>Priority Tiers - last hour</h2></div>
+      <div id="tierBars" class="tier-bars"></div>
+    </div>
+  </section>
+</main>
+
+<script src="app.js"></script>
+</body>
+</html>
