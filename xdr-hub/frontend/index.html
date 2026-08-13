@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>XDR Hub — Unified Incident Correlation</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header class="topbar">
+  <div class="brand">
+    <span class="brand-mark"><span class="brand-ping"></span></span>
+    <h1>XDR Hub</h1>
+    <span class="tag">FlowWatch · ISE · Secure Analytics</span>
+  </div>
+  <div id="sourceChips" class="source-chips"></div>
+</header>
+
+<main>
+  <section class="summary-row" id="summaryRow"></section>
+
+  <section class="panel incidents-panel">
+    <div class="panel-header">
+      <h2>Unified Incidents</h2>
+      <span class="hint">one row per IP, correlated across all connected sources</span>
+    </div>
+    <div id="incidentsWrap"></div>
+  </section>
+</main>
+
+<script src="app.js"></script>
+</body>
+</html>
