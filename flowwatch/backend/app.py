@@ -90,6 +90,14 @@ def api_metrics():
     })
 
 
+@app.route("/api/alarms")
+def api_alarms():
+    ensure_started()
+    limit = int(request.args.get("limit", 25))
+    since_seconds = int(request.args.get("since_seconds", 3600))
+    return jsonify(store.alarms(limit=limit, since_seconds=since_seconds))
+
+
 @app.route("/api/inventory", methods=["GET"])
 def api_inventory_get():
     return jsonify(inventory.data)

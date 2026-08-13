@@ -99,3 +99,17 @@ class Store:
     def total_flows(self):
         with self._lock:
             return self._conn.execute("SELECT COUNT(*) FROM flows").fetchone()[0]
+
+    def alarms(self, limit=25, since_seconds=3600):
+        """High/Critical risk-tier flows within the lookback window, newest
+        first — the feed XDR Hub's flowwatch_connector polls to build
+        correlated incidents."""
+        with self._lock:
+            cutoff = time.time() - since_seconds
+            cur = self._conn.execute(
+                "SELECT * FROM flows WHERE risk_tier IN ('High','Critical') "
+                "AND observed_at >= ? ORDER BY id DESC LIMIT ?",
+                (cutoff, limit),
+            )
+            cols = [c[0] for c in cur.description]
+            return [dict(zip(cols, row)) for row in cur.fetchall()]
