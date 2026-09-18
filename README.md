@@ -1,78 +1,85 @@
 # Cisco XDR Lab
 
-A lab-scale security analytics project that explores how network-flow anomaly detection, endpoint identity, posture, and security-analytics signals can be correlated into prioritized incidents.
+A lab-scale security analytics project exploring how network-flow telemetry, endpoint identity, posture, and security signals can be correlated into prioritized incidents.
+
+> **Goal:** understand how raw network telemetry can become useful security context.
 
 ## Architecture
 
 ```text
-Real / Simulated Flow Data
-          ↓
-       FlowWatch
-   ┌──────┼──────┐
-   ↓      ↓      ↓
+Network / Lab Flow Data
+          |
+          v
+      FlowWatch
+   +------+------+ 
+   |      |      |
 Traffic Context Risk
-          ↓
+   |      |      |
+   +------+------+ 
+          |
+          v
        XDR Hub
-      ↙       ↘
- Cisco ISE   Secure Network Analytics
-      \       /
-       Unified Incident
+       /     \
+      v       v
+ Cisco ISE   Security Analytics
+       \     /
+        \   /
+         v v
+   Unified Incident
 ```
 
 ## Components
 
 ### SentinelX
-
-A simulated environment used to design and compare traffic-only, context-aware, and risk-informed detection.
+A simulated research environment for comparing traffic-only, context-aware, and risk-informed detection approaches.
 
 ### FlowWatch
-
-The real-flow collector. It receives NetFlow v5, applies the same detection concepts to network traffic, and exposes scored flows and alarms.
+The network-flow collection and detection layer. It receives NetFlow telemetry and produces scored flows and alerts.
 
 ### XDR Hub
+The correlation layer. It combines network findings with identity and posture context to build host-oriented incidents.
 
-The correlation layer. It combines FlowWatch findings with identity/posture context and Secure Network Analytics-style alerts to create host-oriented incidents.
+## Detection Approach
 
-## Getting Started
+| Layer | Purpose |
+|---|---|
+| Traffic | Identify unusual flow behaviour |
+| Context | Add device, VLAN, role, policy, and destination information |
+| Risk | Prioritize findings using asset importance |
+| Correlation | Combine related signals into an incident view |
 
-Each component can be run independently. Start with the component README for its dependencies and configuration.
+## Learning Goals
 
-Typical development flow:
+This project is helping me connect:
 
-```bash
-# FlowWatch
-cd flowwatch
-pip install -r requirements.txt
-python3 backend/app.py
-```
+- Network security
+- NetFlow
+- Cisco ISE
+- Endpoint posture
+- Security analytics
+- Incident correlation
+- Python application development
+- Enterprise security architecture
 
-Then run the XDR Hub and its lab mocks according to its local configuration.
+## Current Scope
 
-## Detection Model
+This is a learning and lab project, not a production XDR platform. Some integrations are simulated or lab-specific and require further validation before operational use.
 
-- Traffic anomalies identify unusual flow behavior.
-- Context adds device, VLAN, role, policy, and destination information.
-- Risk scoring prioritizes events using contextual importance.
-- Correlation combines independent signals into a single host-oriented incident.
+## Development Direction
 
-## Current Limitations
-
-- FlowWatch currently centers on NetFlow v5.
-- Some Cisco integrations use lab/mock connectors.
-- XDR Hub state is not intended as a persistent production incident store.
-- Thresholds and scoring are research/prototype choices and require validation before operational deployment.
+- NetFlow v9 / IPFIX support
+- Stronger event correlation
+- Persistent PostgreSQL/TimescaleDB storage
+- Detection tuning and baseline analysis
+- Additional Cisco security integrations
+- Better incident investigation workflows
 
 ## Security
 
-This project is intended for defensive security research and authorized lab environments. Never commit real Cisco ISE credentials, tokens, flow data, or private infrastructure details.
-
-## License
-
-MIT
+Use only with systems, networks, and telemetry that you own or are explicitly authorized to monitor. Never commit credentials, tokens, or private infrastructure information.
 
 ## Author
 
 **Dev Bhargav**
 
-- GitHub: https://github.com/majordevbhargav
-- LinkedIn: https://www.linkedin.com/in/devbhargav100
+[GitHub](https://github.com/majordevbhargav) · [LinkedIn](https://www.linkedin.com/in/devbhargav100)
