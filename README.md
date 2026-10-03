@@ -1,78 +1,84 @@
 # Cisco XDR Lab
 
-A lab-scale security analytics project exploring how network-flow telemetry, endpoint identity, posture, and security signals can be correlated into prioritized incidents.
+> **A lab-scale security analytics project exploring network telemetry, endpoint context, identity, posture, and incident correlation.**
 
-> **Goal:** understand how raw network telemetry can become useful security context.
+![Status](https://img.shields.io/badge/status-research%20%2F%20lab-informational)
+![Focus](https://img.shields.io/badge/focus-network%20security-blue)
+
+## Goal
+
+Understand how raw network telemetry can be enriched with endpoint and identity context and transformed into prioritized, host-oriented security incidents.
+
+This is a learning and architecture project, not a production XDR platform. Integrations may be simulated or lab-specific.
 
 ## Architecture
 
 ```text
 Network / Lab Flow Data
-          |
-          v
+          │
+          ▼
       FlowWatch
-   +------+------+ 
-   |      |      |
-Traffic Context Risk
-   |      |      |
-   +------+------+ 
-          |
-          v
+   ┌──────┼──────┐
+ Traffic Context Risk
+   └──────┼──────┘
+          │
+          ▼
        XDR Hub
        /     \
-      v       v
+      ▼       ▼
  Cisco ISE   Security Analytics
        \     /
-        \   /
-         v v
+        ▼   ▼
    Unified Incident
+          │
+          ▼
+   Investigation View
 ```
 
-## Components
-
-### SentinelX
-A simulated research environment for comparing traffic-only, context-aware, and risk-informed detection approaches.
-
-### FlowWatch
-The network-flow collection and detection layer. It receives NetFlow telemetry and produces scored flows and alerts.
-
-### XDR Hub
-The correlation layer. It combines network findings with identity and posture context to build host-oriented incidents.
-
-## Detection Approach
+## Signal Pipeline
 
 | Layer | Purpose |
 |---|---|
-| Traffic | Identify unusual flow behaviour |
-| Context | Add device, VLAN, role, policy, and destination information |
-| Risk | Prioritize findings using asset importance |
-| Correlation | Combine related signals into an incident view |
+| **Traffic** | Identify unusual flow behaviour |
+| **Context** | Add device, VLAN, role, policy, and destination information |
+| **Risk** | Prioritize findings using asset importance |
+| **Correlation** | Combine related signals into host-centric incidents |
 
-## Learning Goals
+## Components
 
-This project is helping me connect:
+### FlowWatch
+Network-flow collection and detection layer producing scored flows and alerts.
 
-- Network security
-- NetFlow
-- Cisco ISE
+### SentinelX
+Research environment for comparing traffic-only, context-aware, and risk-informed detection approaches.
+
+### XDR Hub
+Correlation layer that combines network findings with identity and posture context.
+
+### Cisco ISE
+Represents the identity and endpoint-policy context available in an enterprise security environment.
+
+## Learning Objectives
+
+- NetFlow and network telemetry
+- Context-aware network detection
+- Cisco ISE concepts
 - Endpoint posture
 - Security analytics
 - Incident correlation
-- Python application development
-- Enterprise security architecture
-
-## Current Scope
-
-This is a learning and lab project, not a production XDR platform. Some integrations are simulated or lab-specific and require further validation before operational use.
+- Risk modelling
+- Defensive security architecture
+- Python application engineering
 
 ## Development Direction
 
-- NetFlow v9 / IPFIX support
+- NetFlow v9 / IPFIX
+- Persistent PostgreSQL / TimescaleDB storage
 - Stronger event correlation
-- Persistent PostgreSQL/TimescaleDB storage
 - Detection tuning and baseline analysis
 - Additional Cisco security integrations
 - Better incident investigation workflows
+- Reproducible attack/normal-traffic lab scenarios
 
 ## Security
 
@@ -80,6 +86,5 @@ Use only with systems, networks, and telemetry that you own or are explicitly au
 
 ## Author
 
-**Dev Bhargav**
-
+**Dev Bhargav**  
 [GitHub](https://github.com/majordevbhargav) · [LinkedIn](https://www.linkedin.com/in/devbhargav100)
